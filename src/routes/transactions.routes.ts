@@ -3,7 +3,7 @@ import { Router } from 'express';
 
 import TransactionsRepository from '../repositories/TransactionsRepository';
 import CreateTransactionService from '../services/CreateTransactionService';
-// import DeleteTransactionService from '../services/DeleteTransactionService';
+import DeleteTransactionService from '../services/DeleteTransactionService';
 // import ImportTransactionsService from '../services/ImportTransactionsService';
 
 const transactionsRouter = Router();
@@ -32,9 +32,19 @@ transactionsRouter.post('/', async (request, response) => {
   return response.json(transaction);
 });
 
-// transactionsRouter.delete('/:id', async (request, response) => {
-//   // TODO
-// });
+transactionsRouter.delete('/:id', async (request, response) => {
+  const { id } = request.params;
+
+  const deleteTransaction = new DeleteTransactionService();
+
+  try {
+    await deleteTransaction.execute(id);
+  } catch (error) {
+    return response.status(400).json(error.message);
+  }
+
+  return response.status(204).send();
+});
 
 // transactionsRouter.post('/import', async (request, response) => {
 //   // TODO
