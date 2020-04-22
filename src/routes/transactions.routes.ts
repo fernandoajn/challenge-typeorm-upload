@@ -52,21 +52,11 @@ transactionsRouter.delete('/:id', async (request, response) => {
 
 transactionsRouter.post(
   '/import',
-  upload.single('transaction_file'),
+  upload.single('file'),
   async (request, response) => {
     const importTransaction = new ImportTransactionsService();
-    const createTransactions = new CreateTransactionService();
 
     const transactions = await importTransaction.execute(request.file.path);
-
-    transactions.forEach(async transaction => {
-      await createTransactions.execute({
-        title: transaction.title,
-        value: transaction.value,
-        type: transaction.type,
-        category: transaction.title,
-      });
-    });
 
     return response.json(transactions);
   },
