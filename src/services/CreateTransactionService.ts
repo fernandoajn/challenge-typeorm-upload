@@ -4,6 +4,7 @@ import { getCustomRepository, getRepository } from 'typeorm';
 import Transaction from '../models/Transaction';
 import Category from '../models/Category';
 import TransactionsRepository from '../repositories/TransactionsRepository';
+// import CreateCategoryService from './CreateCategoryService';
 
 interface RequestDTO {
   title: string;
@@ -17,34 +18,29 @@ class CreateTransactionService {
     value,
     type,
     category,
-  }: RequestDTO): Promise<Transaction> {
+  }: RequestDTO): Promise<Transaction | null> {
     const transactionsRepository = getCustomRepository(TransactionsRepository);
     const categoriesRepository = getRepository(Category);
-    let categoryId;
 
-    const categoryExists = await categoriesRepository.findOne({
+    let transactionCategory = await categoriesRepository.findOne({
       where: {
         title: category,
       },
     });
 
-    if (!categoryExists) {
-      const newCategory = categoriesRepository.create({
+    if (!transactionCategory) {
+      transactionCategory = categoriesRepository.create({
         title: category,
       });
 
-      await categoriesRepository.save(newCategory);
-
-      categoryId = newCategory.id;
-    } else {
-      categoryId = categoryExists.id;
+      await categoriesRepository.save(transactionCategory);
     }
 
     const transaction = transactionsRepository.create({
       title,
       value,
       type,
-      category_id: categoryId,
+      category: transactionCategory,
     });
 
     await transactionsRepository.save(transaction);
